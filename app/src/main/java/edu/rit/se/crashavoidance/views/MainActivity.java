@@ -1,10 +1,8 @@
 package edu.rit.se.crashavoidance.views;
 
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -18,15 +16,13 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import edu.rit.se.crashavoidance.R;
 import edu.rit.se.wifibuddy.DnsSdService;
 import edu.rit.se.wifibuddy.WifiDirectHandler;
@@ -43,7 +39,12 @@ public class MainActivity extends AppCompatActivity implements WiFiDirectHandler
     private ChatFragment chatFragment = null;
     private LogsDialogFragment logsDialogFragment;
     private MainFragment mainFragment;
-    private TextView deviceInfoTextView;
+
+    @BindView(R.id.thisDeviceInfoTextView)
+    TextView deviceInfoTextView;
+    @BindView(R.id.mainToolbar)
+    Toolbar toolbar;
+
     private static final String TAG = WifiDirectHandler.TAG + "MainActivity";
 
     /**
@@ -56,12 +57,10 @@ public class MainActivity extends AppCompatActivity implements WiFiDirectHandler
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Creating MainActivity");
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         // Initialize ActionBar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.mainToolbar);
         setSupportActionBar(toolbar);
-
-        deviceInfoTextView = (TextView) findViewById(R.id.thisDeviceInfoTextView);
 
         registerCommunicationReceiver();
         Log.i(TAG, "MainActivity created");
@@ -209,50 +208,6 @@ public class MainActivity extends AppCompatActivity implements WiFiDirectHandler
         }
     }
 
-    protected void onPause() {
-        super.onPause();
-//        Log.i(TAG, "Pausing MainActivity");
-//        if (wifiDirectHandlerBound) {
-//            Log.i(TAG, "WifiDirectHandler service unbound");
-//            unbindService(wifiServiceConnection);
-//            wifiDirectHandlerBound = false;
-//        }
-        Log.i(TAG, "MainActivity paused");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i(TAG, "Resuming MainActivity");
-//        Intent intent = new Intent(this, WifiDirectHandler.class);
-//        if(!wifiDirectHandlerBound) {
-//            bindService(intent, wifiServiceConnection, BIND_AUTO_CREATE);
-//        }
-        Log.i(TAG, "MainActivity resumed");
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i(TAG, "Starting MainActivity");
-//        Intent intent = new Intent(this, WifiDirectHandler.class);
-//        bindService(intent, wifiServiceConnection, BIND_AUTO_CREATE);
-        Log.i(TAG, "MainActivity started");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.i(TAG, "Stopping MainActivity");
-//        if(wifiDirectHandlerBound) {
-//            Intent intent = new Intent(this, WifiDirectHandler.class);
-//            stopService(intent);
-//            unbindService(wifiServiceConnection);
-//            wifiDirectHandlerBound = false;
-//        }
-        Log.i(TAG, "MainActivity stopped");
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -311,4 +266,48 @@ public class MainActivity extends AppCompatActivity implements WiFiDirectHandler
             }
         }
     }
+
+//    protected void onPause() {
+//        super.onPause();
+//        Log.i(TAG, "Pausing MainActivity");
+//        if (wifiDirectHandlerBound) {
+//            Log.i(TAG, "WifiDirectHandler service unbound");
+//            unbindService(wifiServiceConnection);
+//            wifiDirectHandlerBound = false;
+//        }
+//        Log.i(TAG, "MainActivity paused");
+//    }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        Log.i(TAG, "Resuming MainActivity");
+//        Intent intent = new Intent(this, WifiDirectHandler.class);
+//        if(!wifiDirectHandlerBound) {
+//            bindService(intent, wifiServiceConnection, BIND_AUTO_CREATE);
+//        }
+//        Log.i(TAG, "MainActivity resumed");
+//    }
+
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        Log.i(TAG, "Starting MainActivity");
+//        Intent intent = new Intent(this, WifiDirectHandler.class);
+//        bindService(intent, wifiServiceConnection, BIND_AUTO_CREATE);
+//        Log.i(TAG, "MainActivity started");
+//    }
+
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        Log.i(TAG, "Stopping MainActivity");
+//        if(wifiDirectHandlerBound) {
+//            Intent intent = new Intent(this, WifiDirectHandler.class);
+//            stopService(intent);
+//            unbindService(wifiServiceConnection);
+//            wifiDirectHandlerBound = false;
+//        }
+//        Log.i(TAG, "MainActivity stopped");
+//    }
 }

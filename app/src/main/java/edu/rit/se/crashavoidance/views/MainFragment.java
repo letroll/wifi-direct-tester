@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +14,9 @@ import android.widget.Switch;
 
 import java.util.HashMap;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import edu.rit.se.crashavoidance.R;
 import edu.rit.se.wifibuddy.WifiDirectHandler;
 
@@ -24,13 +26,18 @@ import edu.rit.se.wifibuddy.WifiDirectHandler;
 public class MainFragment extends Fragment {
 
     private WiFiDirectHandlerAccessor wifiDirectHandlerAccessor;
-    private Switch toggleWifiSwitch;
-    private Switch serviceRegistrationSwitch;
-    private Switch noPromptServiceRegistrationSwitch;
-    private Button discoverServicesButton;
+
+    @BindView(R.id.toggleWifiSwitch)
+    Switch toggleWifiSwitch;
+    @BindView(R.id.serviceRegistrationSwitch)
+    Switch serviceRegistrationSwitch;
+    @BindView(R.id.noPromptServiceRegistrationSwitch)
+    Switch noPromptServiceRegistrationSwitch;
+    @BindView(R.id.discoverServicesButton)
+    Button discoverServicesButton;
+
     private AvailableServicesFragment availableServicesFragment;
     private MainActivity mainActivity;
-    private Toolbar toolbar;
     private static final String TAG = WifiDirectHandler.TAG + "MainFragment";
 
     /**
@@ -41,14 +48,7 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Sets the Layout for the UI
         final View view = inflater.inflate(R.layout.fragment_main, container, false);
-
-        // Initialize Switches
-        toggleWifiSwitch = (Switch) view.findViewById(R.id.toggleWifiSwitch);
-        serviceRegistrationSwitch = (Switch) view.findViewById(R.id.serviceRegistrationSwitch);
-        noPromptServiceRegistrationSwitch = (Switch) view.findViewById(R.id.noPromptServiceRegistrationSwitch);
-
-        // Initialize Discover Services Button
-        discoverServicesButton = (Button) view.findViewById(R.id.discoverServicesButton);
+        ButterKnife.bind(this,view);
 
         updateToggles();
 
@@ -122,25 +122,19 @@ public class MainFragment extends Fragment {
 //                }
 //            }
 //        });
-
-        // Set Click Listener for Discover Services Button
-        discoverServicesButton.setOnClickListener(new View.OnClickListener() {
-            /**
-             * Show AvailableServicesFragment when Discover Services Button is clicked
-             */
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "\nDiscover Services Button Pressed");
-                if (availableServicesFragment == null) {
-                    availableServicesFragment = new AvailableServicesFragment();
-                }
-                mainActivity.replaceFragment(availableServicesFragment);
-            }
-        });
-
-        toolbar = (Toolbar) getActivity().findViewById(R.id.mainToolbar);
-
         return view;
+    }
+
+    /**
+     * Show AvailableServicesFragment when Discover Services Button is clicked
+     */
+    @OnClick(R.id.discoverServicesButton)
+    void discoverServices() {
+        Log.i(TAG, "\nDiscover Services Button Pressed");
+        if (availableServicesFragment == null) {
+            availableServicesFragment = new AvailableServicesFragment();
+        }
+        mainActivity.replaceFragment(availableServicesFragment);
     }
 
     /**
@@ -163,12 +157,6 @@ public class MainFragment extends Fragment {
         } catch (ClassCastException e) {
             throw new ClassCastException(getActivity().toString() + " must implement WiFiDirectHandlerAccessor");
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        toolbar.setTitle("Wi-Fi Direct Handler");
     }
 
     /**
