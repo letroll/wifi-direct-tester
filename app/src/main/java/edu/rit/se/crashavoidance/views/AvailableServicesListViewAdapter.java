@@ -1,6 +1,7 @@
 package edu.rit.se.crashavoidance.views;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,48 +11,65 @@ import android.widget.TextView;
 import java.util.List;
 import java.util.Map;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import edu.rit.se.crashavoidance.R;
 import edu.rit.se.wifibuddy.DnsSdService;
 import edu.rit.se.wifibuddy.DnsSdTxtRecord;
+import edu.rit.se.wifibuddy.WifiDirectHandler;
 
 /**
  *
  */
 class AvailableServicesListViewAdapter extends BaseAdapter {
 
-    private List<DnsSdService> serviceList;
-    private final MainActivity context;
+    private final List<DnsSdService> serviceList;
+    private final MainActivity mainActivity;
+    private final WifiDirectHandler wifiDirectHandler;
 
-    public AvailableServicesListViewAdapter(MainActivity context, List<DnsSdService> serviceList) {
-        this.context = context;
+    public AvailableServicesListViewAdapter(final MainActivity mainActivity, final List<DnsSdService> serviceList, WifiDirectHandler wifiDirectHandler) {
+        this.mainActivity = mainActivity;
         this.serviceList = serviceList;
+        this.wifiDirectHandler = wifiDirectHandler;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final DnsSdService service = getItem(position);
+        ViewHolder holder;
 
         // Inflates the template view inside each ListView item
         if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflater = (LayoutInflater) mainActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.service_item, parent, false);
+            holder = new ViewHolder(convertView);
+            convertView.setTag(holder);
+        }else{
+            holder = (ViewHolder) convertView.getTag();
         }
 
-        TextView deviceNameTextView = (TextView) convertView.findViewById(R.id.deviceName);
-        TextView deviceInfoTextView = (TextView) convertView.findViewById(R.id.deviceInfo);
-        TextView connectTextView = (TextView) convertView.findViewById(R.id.connect);
-        connectTextView.setText("Connect");
+        holder.connectTextView.setText("Connect");
 
-        String sourceDeviceName = service.getSrcDevice().deviceName;
-        if (sourceDeviceName.equals("")) {
-            sourceDeviceName = "Android Device";
-        }
-        deviceNameTextView.setText(sourceDeviceName);
+        setDeviceName(service, holder);
 
+        holder.deviceInfoTextView.setText(getDeviceInfo(service));
+
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainActivity.onServiceClick(service);
+            }
+        });
+
+        return convertView;
+    }
+
+    @NonNull
+    private String getDeviceInfo(DnsSdService service) {
         Map<String, String> mapTxtRecord;
         String strTxtRecord = "";
-        if (context.getWifiHandler() != null) {
-            DnsSdTxtRecord txtRecord = context.getWifiHandler().getDnsSdTxtRecordMap().get(service.getSrcDevice().deviceAddress);
+        if (wifiDirectHandler != null) {
+            DnsSdTxtRecord txtRecord = wifiDirectHandler.getDnsSdTxtRecordMap().get(service.getSrcDevice().deviceAddress);
             if (txtRecord != null) {
                 mapTxtRecord = txtRecord.getRecord();
                 for (Map.Entry<String, String> record : mapTxtRecord.entrySet()) {
@@ -59,18 +77,26 @@ class AvailableServicesListViewAdapter extends BaseAdapter {
                 }
             }
         }
-        String status = context.getWifiHandler().deviceStatusToString(context.getWifiHandler().getThisDevice().status);
-        String strDeviceInfo = status + "\n" + strTxtRecord;
-        deviceInfoTextView.setText(strDeviceInfo);
+        String status = wifiDirectHandler.deviceStatusToString(wifiDirectHandler.getThisDevice().status);
+        return status + "\n" + strTxtRecord;
+    }
 
-        convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                context.onServiceClick(service);
-            }
-        });
+    private void setDeviceName(DnsSdService service, ViewHolder holder) {
+        String sourceDeviceName = service.getSrcDevice().deviceName;
+        if (sourceDeviceName.equals("")) {
+            sourceDeviceName = "Android Device";
+        }
+        holder.deviceNameTextView.setText(sourceDeviceName);
+    }
 
-        return convertView;
+    static class ViewHolder {
+        @BindView(R.id.deviceName) TextView deviceNameTextView;
+        @BindView(R.id.deviceInfo) TextView deviceInfoTextView;
+        @BindView(R.id.connect) TextView connectTextView;
+
+        public ViewHolder(View view) {
+            ButterKnife.bind(this, view);
+        }
     }
 
     /**

@@ -39,6 +39,7 @@ public class MainFragment extends Fragment {
     private AvailableServicesFragment availableServicesFragment;
     private MainActivity mainActivity;
     private static final String TAG = WifiDirectHandler.TAG + "MainFragment";
+    private WifiDirectHandler wifiDirectHandler;
 
     /**
      * Sets the layout for the UI, initializes the Buttons and Switches, and returns the View
@@ -60,13 +61,8 @@ public class MainFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Log.i(TAG, "\nWi-Fi Switch Toggled");
-                if(isChecked) {
-                    // Enable Wi-Fi, enable all switches and buttons
-                    getHandler().setWifiEnabled(true);
-                } else {
-                    // Disable Wi-Fi, disable all switches and buttons
-                    getHandler().setWifiEnabled(false);
-                }
+                // Disable or Enable Wi-Fi, disable or enable all switches and buttons
+                wifiDirectHandler.setWifiEnabled(isChecked);
             }
         });
 
@@ -80,18 +76,18 @@ public class MainFragment extends Fragment {
                 Log.i(TAG, "\nService Registration Switch Toggled");
                 if (isChecked) {
                     // Add local service
-                    if (getHandler().getWifiP2pServiceInfo() == null) {
+                    if (wifiDirectHandler.getWifiP2pServiceInfo() == null) {
                         HashMap<String, String> record = new HashMap<>();
-                        record.put("Name", getHandler().getThisDevice().deviceName);
-                        record.put("Address", getHandler().getThisDevice().deviceAddress);
-                        getHandler().addLocalService("Wi-Fi Buddy", record);
+                        record.put("Name", wifiDirectHandler.getThisDevice().deviceName);
+                        record.put("Address", wifiDirectHandler.getThisDevice().deviceAddress);
+                        wifiDirectHandler.addLocalService("Wi-Fi Buddy", record);
                         noPromptServiceRegistrationSwitch.setEnabled(false);
                     } else {
                         Log.w(TAG, "Service already added");
                     }
                 } else {
                     // Remove local service
-                    getHandler().removeService();
+                    wifiDirectHandler.removeService();
                     noPromptServiceRegistrationSwitch.setEnabled(true);
                 }
             }
@@ -113,11 +109,11 @@ public class MainFragment extends Fragment {
 //                            new HashMap<String, String>(),  // Record
 //                            ServiceType.PRESENCE_TCP        // Type
 //                    );
-//                    getHandler().startAddingNoPromptService(serviceData);
+//                    wifiDirectHandler.startAddingNoPromptService(serviceData);
 //                    serviceRegistrationSwitch.setEnabled(false);
 //                } else {
 //                    // Remove no-prompt local service
-//                    getHandler().removeService();
+//                    wifiDirectHandler.removeService();
 //                    serviceRegistrationSwitch.setEnabled(true);
 //                }
 //            }
@@ -154,37 +150,25 @@ public class MainFragment extends Fragment {
         super.onAttach(context);
         try {
             wifiDirectHandlerAccessor = ((WiFiDirectHandlerAccessor) getActivity());
+            wifiDirectHandler = wifiDirectHandlerAccessor.getWifiHandler();
         } catch (ClassCastException e) {
             throw new ClassCastException(getActivity().toString() + " must implement WiFiDirectHandlerAccessor");
         }
     }
 
-    /**
-     * Shortcut for accessing the wifi handler
-     */
-    private WifiDirectHandler getHandler() {
-        return wifiDirectHandlerAccessor.getWifiHandler();
-    }
-
     private void updateToggles() {
         // Set state of Switches and Buttons on load
         Log.i(TAG, "Updating toggle switches");
-        if(getHandler().isWifiEnabled()) {
-            toggleWifiSwitch.setChecked(true);
-            serviceRegistrationSwitch.setEnabled(true);
-            noPromptServiceRegistrationSwitch.setEnabled(true);
-            discoverServicesButton.setEnabled(true);
-        } else {
-            toggleWifiSwitch.setChecked(false);
-            serviceRegistrationSwitch.setEnabled(false);
-            noPromptServiceRegistrationSwitch.setEnabled(false);
-            discoverServicesButton.setEnabled(false);
-        }
+        final boolean isWifiEnabled = wifiDirectHandler.isWifiEnabled();
+        toggleWifiSwitch.setChecked(isWifiEnabled);
+        serviceRegistrationSwitch.setEnabled(isWifiEnabled);
+        noPromptServiceRegistrationSwitch.setEnabled(isWifiEnabled);
+        discoverServicesButton.setEnabled(isWifiEnabled);
     }
 
     public void handleWifiStateChanged() {
         if (toggleWifiSwitch != null) {
-            if (getHandler().isWifiEnabled()) {
+            if (wifiDirectHandler.isWifiEnabled()) {
                 serviceRegistrationSwitch.setEnabled(true);
                 discoverServicesButton.setEnabled(true);
             } else {

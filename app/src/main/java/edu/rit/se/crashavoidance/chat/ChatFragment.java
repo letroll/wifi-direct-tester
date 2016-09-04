@@ -1,4 +1,4 @@
-package edu.rit.se.crashavoidance.views;
+package edu.rit.se.crashavoidance.chat;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -13,17 +13,14 @@ import android.support.v4.app.ListFragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -37,6 +34,7 @@ import butterknife.OnClick;
 import edu.rit.se.crashavoidance.R;
 import edu.rit.se.crashavoidance.network.Message;
 import edu.rit.se.crashavoidance.network.MessageType;
+import edu.rit.se.crashavoidance.views.WiFiDirectHandlerAccessor;
 import edu.rit.se.wifibuddy.CommunicationManager;
 import edu.rit.se.wifibuddy.WifiDirectHandler;
 
@@ -152,40 +150,6 @@ public class ChatFragment extends ListFragment {
         CommunicationManager communicationManager = handlerAccessor.getWifiHandler().getCommunicationManager();
         Log.i(TAG, "Attempting to send image");
         communicationManager.write(SerializationUtils.serialize(message));
-    }
-
-    /**
-     * ArrayAdapter to manage chat messages.
-     */
-    public class ChatMessageAdapter extends ArrayAdapter<String> {
-
-        public ChatMessageAdapter(Context context, int textViewResourceId, List<String> items) {
-            super(context, textViewResourceId, items);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View v = convertView;
-            if (v == null) {
-                LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                v = vi.inflate(android.R.layout.simple_list_item_1, null);
-            }
-            String message = items.get(position);
-            if (message != null && !message.isEmpty()) {
-                TextView nameText = (TextView) v.findViewById(android.R.id.text1);
-                if (nameText != null) {
-                    nameText.setText(message);
-                    if (message.startsWith("Me: ")) {
-                        // My message
-                        nameText.setGravity(Gravity.RIGHT);
-                    } else {
-                        // Buddy's message
-                        nameText.setGravity(Gravity.LEFT);
-                    }
-                }
-            }
-            return v;
-        }
     }
 
     @Override

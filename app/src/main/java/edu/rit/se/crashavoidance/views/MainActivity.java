@@ -24,6 +24,7 @@ import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import edu.rit.se.crashavoidance.R;
+import edu.rit.se.crashavoidance.chat.ChatFragment;
 import edu.rit.se.wifibuddy.DnsSdService;
 import edu.rit.se.wifibuddy.WifiDirectHandler;
 
