@@ -7,6 +7,7 @@ import android.util.Log;
 
 import java.util.Date;
 
+import edu.rit.se.crashavoidance.availableService.AvailableServicesListViewAdapter;
 import edu.rit.se.wifibuddy.DnsSdService;
 import edu.rit.se.wifibuddy.WifiDirectHandler;
 
