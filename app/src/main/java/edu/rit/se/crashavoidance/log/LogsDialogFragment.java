@@ -1,4 +1,4 @@
-package edu.rit.se.crashavoidance.views;
+package edu.rit.se.crashavoidance.log;
 
 import android.app.Dialog;
 import android.app.DialogFragment;

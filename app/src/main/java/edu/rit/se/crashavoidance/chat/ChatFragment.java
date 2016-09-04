@@ -32,9 +32,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import edu.rit.se.crashavoidance.R;
-import edu.rit.se.crashavoidance.network.Message;
-import edu.rit.se.crashavoidance.network.MessageType;
-import edu.rit.se.crashavoidance.views.WiFiDirectHandlerAccessor;
+import edu.rit.se.crashavoidance.infrastructure.network.Message;
+import edu.rit.se.crashavoidance.infrastructure.network.MessageType;
+import edu.rit.se.crashavoidance.infrastructure.WiFiDirectHandlerAccessor;
 import edu.rit.se.wifibuddy.CommunicationManager;
 import edu.rit.se.wifibuddy.WifiDirectHandler;
 

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="?attr/actionBarSize" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        >
+        <Button
+            android:id="@+id/btn_pierre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="pierre"/>
+        <Button
+            android:id="@+id/btn_feuille"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="feuille"/>
+        <Button
+            android:id="@+id/btn_ciseaux"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ciseaux"/>
+    </LinearLayout>
+</RelativeLayout>

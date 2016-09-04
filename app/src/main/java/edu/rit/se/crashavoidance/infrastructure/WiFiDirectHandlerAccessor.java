@@ -1,4 +1,4 @@
-package edu.rit.se.crashavoidance.views;
+package edu.rit.se.crashavoidance.infrastructure;
 
 import edu.rit.se.wifibuddy.WifiDirectHandler;
 
