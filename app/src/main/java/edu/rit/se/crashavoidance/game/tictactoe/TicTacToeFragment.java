@@ -28,6 +28,7 @@ import edu.rit.se.wifibuddy.WifiDirectHandler;
  */
 public class TicTacToeFragment extends Fragment {
 
+    private static final String TAG = WifiDirectHandler.TAG + "TicTacToeFragment";
     @BindView(R.id.btn_ciseaux)
     Button btnCiseaux;
     @BindView(R.id.btn_pierre)
@@ -35,7 +36,6 @@ public class TicTacToeFragment extends Fragment {
     @BindView(R.id.btn_feuille)
     Button btnFeuille;
     private WiFiDirectHandlerAccessor handlerAccessor;
-    private static final String TAG = WifiDirectHandler.TAG + "TicTacToeFragment";
     private TicTacToeChoise otherPlayerchoise=null;
     private TicTacToeChoise playerChoise = null;
 
@@ -103,7 +103,7 @@ public class TicTacToeFragment extends Fragment {
                 default:
                 Log.e(TAG, "Text message received");
                     if(otherPlayerchoise!=null && playerChoise!=null){
-                Log.e(TAG, "reset here");
+                        Log.e(TAG, "reset here");
                         reset();
                     }
                 final String mes = new String(message.message);

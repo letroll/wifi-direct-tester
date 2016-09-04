@@ -88,11 +88,13 @@ public class AvailableServicesListViewAdapter extends BaseAdapter {
     }
 
     private void setDeviceName(DnsSdService service, ViewHolder holder) {
-        String sourceDeviceName = service.getSrcDevice().deviceName;
-        if (sourceDeviceName.equals("")) {
-            sourceDeviceName = "Android Device";
+        if(service!= null && service.getSrcDevice()!=null) {
+            String sourceDeviceName = service.getSrcDevice().deviceName;
+            if (sourceDeviceName.equals("")) {
+                sourceDeviceName = "Android Device";
+            }
+            holder.deviceNameTextView.setText(sourceDeviceName);
         }
-        holder.deviceNameTextView.setText(sourceDeviceName);
     }
 
     static class ViewHolder {
