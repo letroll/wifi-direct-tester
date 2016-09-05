@@ -8,23 +8,68 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:orientation="horizontal"
         android:gravity="center_horizontal"
-        >
+        android:id="@+id/linearLayout">
         <Button
             android:id="@+id/btn_pierre"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="80dp"
+            android:background="@android:color/holo_green_dark"
             android:text="pierre"/>
         <Button
             android:id="@+id/btn_feuille"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="80dp"
+            android:layout_margin="20dp"
+            android:background="@android:color/holo_green_dark"
             android:text="feuille"/>
         <Button
             android:id="@+id/btn_ciseaux"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="80dp"
+            android:background="@android:color/holo_green_dark"
             android:text="ciseaux"/>
     </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text=""
+        android:id="@+id/tv_status"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text=""
+        android:id="@+id/tv_victory"
+        android:layout_below="@+id/tv_status"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text=""
+        android:id="@+id/tv_defeat"
+        android:layout_below="@+id/tv_victory"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text=""
+        android:id="@+id/tv_equality"
+        android:layout_below="@+id/tv_defeat"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"/>
 </RelativeLayout>

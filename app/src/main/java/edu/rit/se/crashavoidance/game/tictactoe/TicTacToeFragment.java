@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.commons.lang3.SerializationUtils;
@@ -35,9 +36,21 @@ public class TicTacToeFragment extends Fragment {
     Button btnPierre;
     @BindView(R.id.btn_feuille)
     Button btnFeuille;
+    @BindView(R.id.tv_status)
+    TextView tvStatus;
+    @BindView(R.id.tv_victory)
+    TextView tvVictory;
+    @BindView(R.id.tv_defeat)
+    TextView tvDefeat;
+    @BindView(R.id.tv_equality)
+    TextView tvEquality;
+
     private WiFiDirectHandlerAccessor handlerAccessor;
-    private TicTacToeChoise otherPlayerchoise=null;
+    private TicTacToeChoise otherPlayerchoise = null;
     private TicTacToeChoise playerChoise = null;
+    private int victoryCount=0;
+    private int defeatCount=0;
+    private int equalityCount=0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -62,7 +75,7 @@ public class TicTacToeFragment extends Fragment {
     }
 
     private void sendMessage(final TicTacToeChoise ticTacToeChoise) {
-        if(ticTacToeChoise==null)return;
+        if (ticTacToeChoise == null) return;
         Log.e(WifiDirectHandler.TAG, ticTacToeChoise.name() + " button tapped");
         playerChoise = ticTacToeChoise;
         CommunicationManager communicationManager = handlerAccessor.getWifiHandler().getCommunicationManager();
@@ -77,16 +90,22 @@ public class TicTacToeFragment extends Fragment {
         switch (ticTacToeChoise) {
             case PIERRE:
                 btnFeuille.setEnabled(false);
+                btnFeuille.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
                 btnCiseaux.setEnabled(false);
+                btnCiseaux.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
                 break;
             case FEUILLE:
                 btnPierre.setEnabled(false);
+                btnPierre.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
                 btnCiseaux.setEnabled(false);
+                btnCiseaux.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
                 break;
             case CISEAU:
             default:
                 btnPierre.setEnabled(false);
+                btnPierre.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
                 btnFeuille.setEnabled(false);
+                btnFeuille.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
                 break;
         }
         checkIfWeHaveAWinner();
@@ -100,14 +119,12 @@ public class TicTacToeFragment extends Fragment {
         Message message = SerializationUtils.deserialize(readMessage);
         switch (message.messageType) {
             case TICTACTOE:
-                default:
-                Log.e(TAG, "Text message received");
-                    if(otherPlayerchoise!=null && playerChoise!=null){
-                        Log.e(TAG, "reset here");
-                        reset();
-                    }
+            default:
+                if (otherPlayerchoise != null && playerChoise != null) {
+                    reset();
+                }
                 final String mes = new String(message.message);
-                Log.e(TAG,mes);
+                tvStatus.setText("L'autre joueur à joué");
                 otherPlayerchoise = getOtherPlayerchoise(mes);
                 checkIfWeHaveAWinner();
                 break;
@@ -115,51 +132,57 @@ public class TicTacToeFragment extends Fragment {
     }
 
     private void reset() {
+        btnCiseaux.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
+        btnFeuille.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
+        btnPierre.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
         btnPierre.setEnabled(true);
         btnFeuille.setEnabled(true);
         btnCiseaux.setEnabled(true);
         otherPlayerchoise = null;
         playerChoise = null;
+        tvStatus.setText("");
     }
 
-    private TicTacToeChoise getOtherPlayerchoise(final String mes){
-        if(mes !=null && mes.contains(": ")){
+    private TicTacToeChoise getOtherPlayerchoise(final String mes) {
+        if (mes != null && mes.contains(": ")) {
             String[] parts = mes.split(": ");
-            if(parts.length==2){
+            if (parts.length == 2) {
                 final TicTacToeChoise otherPlayerChoice = TicTacToeChoise.fromString(parts[1]);
                 final String author = parts[0];
-                Log.e(TAG,author+ "played "+otherPlayerChoice.name());
                 final String aut = getAuthorName();
-                Log.e(TAG,"moi :"+aut);
-                if(!aut.equals(author))
-                return otherPlayerChoice;
+                if (!aut.equals(author))
+                    return otherPlayerChoice;
             }
         }
         return null;
     }
 
     private void checkIfWeHaveAWinner() {
-        if(otherPlayerchoise == null || playerChoise == null){
+        if (otherPlayerchoise == null || playerChoise == null) {
             return;
         }
-
 
         final boolean lose = otherPlayerchoise == TicTacToeChoise.PIERRE && playerChoise == TicTacToeChoise.CISEAU ||
                 otherPlayerchoise == TicTacToeChoise.CISEAU && playerChoise == TicTacToeChoise.FEUILLE ||
                 otherPlayerchoise == TicTacToeChoise.FEUILLE && playerChoise == TicTacToeChoise.PIERRE;
         final boolean equality = otherPlayerchoise == playerChoise;
-
-        Log.e(TAG,"otherChoice:"+otherPlayerchoise.name()+" playerChoice:"+playerChoise.name()+ " "+(equality?"equality":lose?"perdu":"gagné"));
-
         showResult(lose, equality);
     }
 
     private void showResult(boolean lose, boolean equality) {
-        //sendMessage(playerChoise);
-        if(equality){
-            Toast.makeText(getActivity(),"égalité",Toast.LENGTH_LONG).show();
-        }else{
-            Toast.makeText(getActivity(),"tu as "+(lose?"perdu":"gagné"),Toast.LENGTH_LONG).show();
+        if (equality) {
+            Toast.makeText(getActivity(), "égalité", Toast.LENGTH_LONG).show();
+            equalityCount++;
+            tvEquality.setText("égalité:"+equalityCount);
+        } else {
+            Toast.makeText(getActivity(), "tu as " + (lose ? "perdu" : "gagné"), Toast.LENGTH_LONG).show();
+            if(lose){
+                defeatCount++;
+                tvEquality.setText("défaite:"+defeatCount);
+            }else{
+                victoryCount++;
+                tvEquality.setText("victoire:"+victoryCount);
+            }
         }
         reset();
     }
