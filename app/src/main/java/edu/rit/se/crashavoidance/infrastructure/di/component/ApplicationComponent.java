@@ -20,7 +20,7 @@ import android.content.Context;
 import javax.inject.Singleton;
 
 import dagger.Component;
-import edu.rit.se.crashavoidance.infrastructure.activity.BaseActivity;
+import edu.rit.se.crashavoidance.infrastructure.BaseActivity;
 import edu.rit.se.crashavoidance.infrastructure.di.module.ApplicationModule;
 
 /**

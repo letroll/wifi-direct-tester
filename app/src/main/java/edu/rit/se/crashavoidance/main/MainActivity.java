@@ -24,8 +24,9 @@ import butterknife.ButterKnife;
 import edu.rit.se.crashavoidance.R;
 import edu.rit.se.crashavoidance.chat.ChatFragment;
 import edu.rit.se.crashavoidance.game.tictactoe.TicTacToeFragment;
+import edu.rit.se.crashavoidance.infrastructure.BaseActivity;
+import edu.rit.se.crashavoidance.infrastructure.FragmentType;
 import edu.rit.se.crashavoidance.infrastructure.WiFiDirectHandlerAccessor;
-import edu.rit.se.crashavoidance.infrastructure.activity.BaseActivity;
 import edu.rit.se.crashavoidance.log.LogsDialogFragment;
 import edu.rit.se.wifibuddy.DnsSdService;
 import edu.rit.se.wifibuddy.WifiDirectHandler;
@@ -35,14 +36,9 @@ import edu.rit.se.wifibuddy.WifiDirectHandler;
  * Contains WifiDirectHandler, which is a service
  * MainActivity has a Communication BroadcastReceiver to handle Intents fired from WifiDirectHandler.
  */
-public class MainActivity extends BaseActivity implements WiFiDirectHandlerAccessor,CommunicationView {
+public class MainActivity extends BaseActivity implements WiFiDirectHandlerAccessor, CommunicationView {
 
-    private WifiDirectHandler wifiDirectHandler;
-    private boolean wifiDirectHandlerBound = false;
-    private ChatFragment chatFragment = null;
-    private LogsDialogFragment logsDialogFragment;
-    private MainFragment mainFragment;
-    private TicTacToeFragment ticTacToeFragment;
+    private static final String TAG = WifiDirectHandler.TAG + "MainActivity";
 
     @BindView(R.id.thisDeviceInfoTextView)
     TextView deviceInfoTextView;
@@ -52,7 +48,9 @@ public class MainActivity extends BaseActivity implements WiFiDirectHandlerAcces
     @Inject
     MainActivityPresenter mainActivityPresenter;
 
-    private static final String TAG = WifiDirectHandler.TAG + "MainActivity";
+    private WifiDirectHandler wifiDirectHandler;
+    private boolean wifiDirectHandlerBound = false;
+    private LogsDialogFragment logsDialogFragment;
     private CommunicationReceiver communicationReceiver;
 
     /**
@@ -67,41 +65,41 @@ public class MainActivity extends BaseActivity implements WiFiDirectHandlerAcces
         setContentView(R.layout.activity_main);
 
         initializeInjector();
-        activityComponent.inject(this);
-
-        ButterKnife.bind(this);
 
         // Initialize ActionBar
         setSupportActionBar(toolbar);
 
-        registerCommunicationReceiver();
-        Log.i(TAG, "MainActivity created");
-
-        Intent intent = new Intent(this, WifiDirectHandler.class);
-        bindService(intent, wifiServiceConnection, BIND_AUTO_CREATE);
-
         mainActivityPresenter.setView(this);
+        mainActivityPresenter.onCreate();
+    }
+
+    @Override
+    protected void initializeInjector() {
+        super.initializeInjector();
+        activityComponent.inject(this);
+        ButterKnife.bind(this);
     }
 
     /**
      * Set the CommunicationReceiver for receiving intents fired from the WifiDirectHandler
      * Used to update the UI and receive communication messages
      */
-    private void registerCommunicationReceiver() {
+    public void registerCommunicationReceiver() {
         communicationReceiver = new CommunicationReceiver(this);
         IntentFilter filter = getIntentFilterWifiDirectHandler();
         LocalBroadcastManager.getInstance(this).registerReceiver(communicationReceiver, filter);
         Log.i(TAG, "Communication Receiver registered");
     }
 
-    @NonNull
-    private IntentFilter getIntentFilterWifiDirectHandler() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(WifiDirectHandler.Action.SERVICE_CONNECTED);
-        filter.addAction(WifiDirectHandler.Action.MESSAGE_RECEIVED);
-        filter.addAction(WifiDirectHandler.Action.DEVICE_CHANGED);
-        filter.addAction(WifiDirectHandler.Action.WIFI_STATE_CHANGED);
-        return filter;
+    @Override
+    public void bindWifiServiceConnection() {
+        Intent intent = new Intent(this, WifiDirectHandler.class);
+        bindService(intent, wifiServiceConnection, BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void showAvailableServicesFragment() {
+        showFragmentInMainContainer(FragmentType.AVAILABLE_SERVICES);
     }
 
     /**
@@ -115,6 +113,7 @@ public class MainActivity extends BaseActivity implements WiFiDirectHandlerAcces
 
     /**
      * Called when a MenuItem in the Main Menu is selected
+     *
      * @param item Item selected
      */
     @Override
@@ -131,6 +130,16 @@ public class MainActivity extends BaseActivity implements WiFiDirectHandlerAcces
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @NonNull
+    private IntentFilter getIntentFilterWifiDirectHandler() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(WifiDirectHandler.Action.SERVICE_CONNECTED);
+        filter.addAction(WifiDirectHandler.Action.MESSAGE_RECEIVED);
+        filter.addAction(WifiDirectHandler.Action.DEVICE_CHANGED);
+        filter.addAction(WifiDirectHandler.Action.WIFI_STATE_CHANGED);
+        return filter;
     }
 
     private void viewLogsDialog() {
@@ -163,8 +172,7 @@ public class MainActivity extends BaseActivity implements WiFiDirectHandlerAcces
             Log.i(TAG, "WifiDirectHandler service bound");
 
             // Add MainFragment to the 'fragment_container' when wifiDirectHandler is bound
-            mainFragment = new MainFragment();
-            replaceFragment(mainFragment);
+            showMainFragment();
 
             deviceInfoTextView.setText(wifiDirectHandler.getThisDeviceInfo());
         }
@@ -183,8 +191,13 @@ public class MainActivity extends BaseActivity implements WiFiDirectHandlerAcces
         }
     };
 
+    private void showMainFragment() {
+        showFragmentInMainContainer(FragmentType.MAIN);
+    }
+
     /**
      * Returns the wifiDirectHandler
+     *
      * @return The wifiDirectHandler
      */
     @Override
@@ -195,6 +208,7 @@ public class MainActivity extends BaseActivity implements WiFiDirectHandlerAcces
     /**
      * Initiates a P2P connection to a service when a Service ListItem is tapped.
      * An invitation appears on the other device to accept or decline the connection.
+     *
      * @param service The service to connect to
      */
     public void onServiceClick(DnsSdService service) {
@@ -232,51 +246,50 @@ public class MainActivity extends BaseActivity implements WiFiDirectHandlerAcces
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i(TAG, "Image captured");
-//        if (requestCode == 1 && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
+        Bundle extras = data.getExtras();
+        Bitmap imageBitmap = (Bitmap) extras.get("data");
+
+        final ChatFragment chatFragment = (ChatFragment) getSupportFragmentManager().findFragmentByTag(ChatFragment.TAG);
+        if (chatFragment != null) {
             chatFragment.pushImage(imageBitmap);
-//        }
+        }
     }
 
     @Override
     public void showChatFragment() {
-        if (chatFragment == null) {
-            chatFragment = new ChatFragment();
-        }
-        replaceFragment(chatFragment);
-        Log.i(TAG, "Switching to Chat fragment");
+        showFragmentInMainContainer(FragmentType.CHAT);
     }
 
     @Override
     public void showTicTacToeFragment() {
-        if (ticTacToeFragment == null) {
-            ticTacToeFragment = new TicTacToeFragment();
-        }
-        replaceFragment(ticTacToeFragment);
-        Log.i(TAG, "Switching to TicTacToe fragment");
+        showFragmentInMainContainer(FragmentType.TICTACTOE);
     }
 
     @Override
     public void onDeviceChange() {
-        if(wifiDirectHandler!=null) {
+        if (wifiDirectHandler != null) {
             deviceInfoTextView.setText(wifiDirectHandler.getThisDeviceInfo());
         }
     }
 
     @Override
     public void onMessageReceived(byte[] byteArrayMessage) {
+//        final ChatFragment chatFragment = (ChatFragment) getSupportFragmentManager().findFragmentByTag(ChatFragment.TAG);
 //        if(chatFragment != null) {
 //            chatFragment.pushMessage(byteArrayMessage);
 //        }
-        if(ticTacToeFragment != null){
+        final TicTacToeFragment ticTacToeFragment = (TicTacToeFragment) getSupportFragmentManager().findFragmentByTag(TicTacToeFragment.TAG);
+        if (ticTacToeFragment != null) {
             ticTacToeFragment.pushMessage(byteArrayMessage);
         }
     }
 
     @Override
     public void onWifiStateChanged() {
-        mainFragment.handleWifiStateChanged();
+        final MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentByTag(MainFragment.TAG);
+        if (mainFragment != null) {
+            mainFragment.handleWifiStateChanged();
+        }
     }
 
 //    protected void onPause() {

@@ -32,9 +32,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import edu.rit.se.crashavoidance.R;
+import edu.rit.se.crashavoidance.infrastructure.WiFiDirectHandlerAccessor;
 import edu.rit.se.crashavoidance.infrastructure.network.Message;
 import edu.rit.se.crashavoidance.infrastructure.network.MessageType;
-import edu.rit.se.crashavoidance.infrastructure.WiFiDirectHandlerAccessor;
 import edu.rit.se.wifibuddy.CommunicationManager;
 import edu.rit.se.wifibuddy.WifiDirectHandler;
 
@@ -44,6 +44,8 @@ import edu.rit.se.wifibuddy.WifiDirectHandler;
  */
 public class ChatFragment extends ListFragment {
 
+    public static final String TAG = ChatFragment.class.getSimpleName();
+    
     @BindView(R.id.textMessageEditText)
     EditText textMessageEditText;
     @BindView(R.id.sendButton)
@@ -52,8 +54,16 @@ public class ChatFragment extends ListFragment {
     private List<String> items = new ArrayList<>();
     private ArrayList<String> messages = new ArrayList<>();
     private WiFiDirectHandlerAccessor handlerAccessor;
-    private static final String TAG = WifiDirectHandler.TAG + "ListFragment";
 
+    public static ChatFragment newInstance() {
+        
+        Bundle args = new Bundle();
+        
+        ChatFragment fragment = new ChatFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);

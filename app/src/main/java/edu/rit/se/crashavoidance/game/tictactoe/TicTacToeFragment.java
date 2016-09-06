@@ -2,7 +2,6 @@ package edu.rit.se.crashavoidance.game.tictactoe;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +16,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import edu.rit.se.crashavoidance.R;
+import edu.rit.se.crashavoidance.infrastructure.BaseFragment;
 import edu.rit.se.crashavoidance.infrastructure.WiFiDirectHandlerAccessor;
 import edu.rit.se.crashavoidance.infrastructure.network.Message;
 import edu.rit.se.crashavoidance.infrastructure.network.MessageType;
@@ -27,9 +27,10 @@ import edu.rit.se.wifibuddy.WifiDirectHandler;
  * This fragment handles chat related UI which includes a list view for messages
  * and a message entry field with a send button.
  */
-public class TicTacToeFragment extends Fragment {
+public class TicTacToeFragment extends BaseFragment {
 
-    private static final String TAG = WifiDirectHandler.TAG + "TicTacToeFragment";
+    public static final String TAG = WifiDirectHandler.TAG + "TicTacToeFragment";
+
     @BindView(R.id.btn_ciseaux)
     Button btnCiseaux;
     @BindView(R.id.btn_pierre)
@@ -48,6 +49,15 @@ public class TicTacToeFragment extends Fragment {
     private int defeatCount=0;
     private int equalityCount=0;
 
+    public static TicTacToeFragment newInstance() {
+        
+        Bundle args = new Bundle();
+        
+        TicTacToeFragment fragment = new TicTacToeFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_tictactoe, container, false);

@@ -14,4 +14,10 @@ public interface CommunicationView {
     void onMessageReceived(byte[] byteArrayMessage);
 
     void onWifiStateChanged();
+
+    void registerCommunicationReceiver();
+
+    void bindWifiServiceConnection();
+
+    void showAvailableServicesFragment();
 }

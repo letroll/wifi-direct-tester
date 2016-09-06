@@ -4,7 +4,6 @@ package edu.rit.se.crashavoidance.availableService;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,24 +17,35 @@ import java.util.Date;
 import java.util.List;
 
 import edu.rit.se.crashavoidance.R;
-import edu.rit.se.crashavoidance.main.MainActivity;
+import edu.rit.se.crashavoidance.infrastructure.BaseFragment;
 import edu.rit.se.crashavoidance.infrastructure.WiFiDirectHandlerAccessor;
 import edu.rit.se.crashavoidance.infrastructure.WifiDirectReceiver;
+import edu.rit.se.crashavoidance.main.MainActivity;
 import edu.rit.se.wifibuddy.DnsSdService;
 import edu.rit.se.wifibuddy.WifiDirectHandler;
 
 /**
  * ListFragment that shows a list of available discovered services
  */
-public class AvailableServicesFragment extends Fragment{
+public class AvailableServicesFragment extends BaseFragment {
+
+    public static final String TAG = WifiDirectHandler.TAG + "ServicesFragment";
 
     private WiFiDirectHandlerAccessor wifiDirectHandlerAccessor;
     private List<DnsSdService> services = new ArrayList<>();
     private AvailableServicesListViewAdapter servicesListAdapter;
     private ListView deviceList;
-    private static final String TAG = WifiDirectHandler.TAG + "ServicesFragment";
     private WifiDirectHandler wifiDirectHandler;
 
+    public static AvailableServicesFragment newInstance() {
+        
+        Bundle args = new Bundle();
+        
+        AvailableServicesFragment fragment = new AvailableServicesFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+    
     /**
      * Sets the Layout for the UI
      */

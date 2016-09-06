@@ -1,5 +1,7 @@
 package edu.rit.se.crashavoidance.main;
 
+import android.util.Log;
+
 import javax.inject.Inject;
 
 import edu.rit.se.crashavoidance.infrastructure.di.annotation.PerActivity;
@@ -11,6 +13,8 @@ import edu.rit.se.crashavoidance.infrastructure.di.annotation.PerActivity;
 @PerActivity
 public class MainActivityPresenter {
 
+    public static final String TAG = MainActivityPresenter.class.getSimpleName();
+
     private CommunicationView communicationView;
 
     @Inject
@@ -19,5 +23,12 @@ public class MainActivityPresenter {
 
     public void setView(final CommunicationView communicationView) {
         this.communicationView = communicationView;
+    }
+
+    public void onCreate() {
+        communicationView.registerCommunicationReceiver();
+        Log.i(TAG, "MainActivity created");
+
+        communicationView.bindWifiServiceConnection();
     }
 }

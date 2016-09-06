@@ -2,8 +2,6 @@ package edu.rit.se.crashavoidance.main;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,16 +16,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import edu.rit.se.crashavoidance.R;
-import edu.rit.se.crashavoidance.availableService.AvailableServicesFragment;
+import edu.rit.se.crashavoidance.infrastructure.BaseFragment;
 import edu.rit.se.crashavoidance.infrastructure.WiFiDirectHandlerAccessor;
 import edu.rit.se.wifibuddy.WifiDirectHandler;
 
 /**
  * The Main Fragment of the application, which contains the Switches and Buttons to perform P2P tasks
  */
-public class MainFragment extends Fragment {
+public class MainFragment extends BaseFragment {
 
-    private WiFiDirectHandlerAccessor wifiDirectHandlerAccessor;
+    public static final String TAG = WifiDirectHandler.TAG + "MainFragment";
 
     @BindView(R.id.toggleWifiSwitch)
     Switch toggleWifiSwitch;
@@ -38,11 +36,19 @@ public class MainFragment extends Fragment {
     @BindView(R.id.discoverServicesButton)
     Button discoverServicesButton;
 
-    private AvailableServicesFragment availableServicesFragment;
-    private MainActivity mainActivity;
-    private static final String TAG = WifiDirectHandler.TAG + "MainFragment";
+    private CommunicationView communicationView;
+    private WiFiDirectHandlerAccessor wifiDirectHandlerAccessor;
     private WifiDirectHandler wifiDirectHandler;
 
+    public static MainFragment newInstance() {
+        
+        Bundle args = new Bundle();
+        
+        MainFragment fragment = new MainFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+    
     /**
      * Sets the layout for the UI, initializes the Buttons and Switches, and returns the View
      */
@@ -129,19 +135,9 @@ public class MainFragment extends Fragment {
     @OnClick(R.id.discoverServicesButton)
     void discoverServices() {
         Log.i(TAG, "\nDiscover Services Button Pressed");
-        if (availableServicesFragment == null) {
-            availableServicesFragment = new AvailableServicesFragment();
+        if(communicationView!=null) {
+            communicationView.showAvailableServicesFragment();
         }
-        mainActivity.replaceFragment(availableServicesFragment);
-    }
-
-    /**
-     * Sets the Main Activity instance
-     */
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mainActivity = (MainActivity) getActivity();
     }
 
     /**
@@ -152,9 +148,10 @@ public class MainFragment extends Fragment {
         super.onAttach(context);
         try {
             wifiDirectHandlerAccessor = ((WiFiDirectHandlerAccessor) getActivity());
+            communicationView = (CommunicationView) getActivity();
             wifiDirectHandler = wifiDirectHandlerAccessor.getWifiHandler();
         } catch (ClassCastException e) {
-            throw new ClassCastException(getActivity().toString() + " must implement WiFiDirectHandlerAccessor");
+            throw new ClassCastException(getActivity().toString() + " must implement WiFiDirectHandlerAccessor and communicationView");
         }
     }
 
