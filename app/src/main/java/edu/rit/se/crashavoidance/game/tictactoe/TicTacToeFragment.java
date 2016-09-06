@@ -40,10 +40,6 @@ public class TicTacToeFragment extends Fragment {
     TextView tvStatus;
     @BindView(R.id.tv_victory)
     TextView tvVictory;
-    @BindView(R.id.tv_defeat)
-    TextView tvDefeat;
-    @BindView(R.id.tv_equality)
-    TextView tvEquality;
 
     private WiFiDirectHandlerAccessor handlerAccessor;
     private TicTacToeChoise otherPlayerchoise = null;
@@ -171,19 +167,17 @@ public class TicTacToeFragment extends Fragment {
 
     private void showResult(boolean lose, boolean equality) {
         if (equality) {
-            Toast.makeText(getActivity(), "égalité", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), "égalité", Toast.LENGTH_SHORT).show();
             equalityCount++;
-            tvEquality.setText("égalité:"+equalityCount);
         } else {
-            Toast.makeText(getActivity(), "tu as " + (lose ? "perdu" : "gagné"), Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), "tu as " + (lose ? "perdu" : "gagné"), Toast.LENGTH_SHORT).show();
             if(lose){
                 defeatCount++;
-                tvEquality.setText("défaite:"+defeatCount);
             }else{
                 victoryCount++;
-                tvEquality.setText("victoire:"+victoryCount);
             }
         }
+        tvVictory.setText("égalité:"+equalityCount + " défaite:"+defeatCount+ " victoire:"+victoryCount);
         reset();
     }
 
